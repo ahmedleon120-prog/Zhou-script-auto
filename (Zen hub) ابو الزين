@@ -1,0 +1,282 @@
+pcall(function()
+    local Plrs = game:GetService("Players")
+    local RS = game:GetService("RunService")
+    local LP = Plrs.LocalPlayer
+    local au, assistEnabled, autoDirectEnabled, stairClimbEnabled, squareViewEnabled, messagesEnabled = false, false, false, false, false, true
+    local protect_gui = protectgui or (gethui and function(g) g.Parent = gethui() end)
+
+    local function rndStr()
+        local c = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        local s = ""
+        for i = 1, math.random(10, 16) do s = s .. string.sub(c, math.random(1, #c), math.random(1, #c)) end
+        return s
+    end
+
+    local G = Instance.new("ScreenGui", protect_gui and nil or game:GetService("CoreGui"))
+    G.Name, G.ResetOnSpawn = rndStr(), false
+    if protect_gui then protect_gui(G) end
+
+    local function mk(cls, p, props)
+        local o = Instance.new(cls, p)
+        o.Name = rndStr()
+        for k, v in pairs(props) do o[k] = v end
+        return o
+    end
+
+    local function mkLbl(p, sz, pos, txt, szs, col, alg, font)
+        return mk("TextLabel", p, {Size = sz, Position = pos, Text = txt, TextSize = szs, TextColor3 = col, Font = font or Enum.Font.GothamMedium, BackgroundTransparency = 1, TextXAlignment = alg or Enum.TextXAlignment.Left})
+    end
+
+    local B = mk("TextButton", G, {Size = UDim2.new(0, 40, 0, 40), Position = UDim2.new(0.05, 0, 0.18, 0), BackgroundColor3 = Color3.fromRGB(15, 22, 35), Text = "Z", TextColor3 = Color3.fromRGB(240, 245, 255), TextSize = 15, Active = true, Draggable = true, Font = Enum.Font.GothamBold})
+    mk("UICorner", B, {CornerRadius = UDim.new(1, 0)})
+    mk("UIStroke", B, {Color = Color3.fromRGB(0, 210, 255), Thickness = 2})
+
+    local N = mk("Frame", G, {Size = UDim2.new(0, 240, 0, 250), Position = UDim2.new(0.05, 0, 0.28, 0), BackgroundColor3 = Color3.fromRGB(13, 18, 28), BackgroundTransparency = 0.05, Visible = false, Active = true, Draggable = true})
+    mk("UICorner", N, {CornerRadius = UDim.new(0, 10)})
+    mk("UIStroke", N, {Color = Color3.fromRGB(0, 180, 255), Thickness = 1.5})
+
+    local TopBar = mk("Frame", N, {Size = UDim2.new(1, 0, 0, 35), BackgroundColor3 = Color3.fromRGB(20, 28, 42)})
+    mk("UICorner", TopBar, {CornerRadius = UDim.new(0, 10)})
+    mkLbl(TopBar, UDim2.new(1, -20, 0, 16), UDim2.new(0, 10, 0, 3), "أبو الزين (zen hub)", 10, Color3.fromRGB(0, 210, 255), Enum.TextXAlignment.Left, Enum.Font.GothamBold)
+    mkLbl(TopBar, UDim2.new(1, -20, 0, 10), UDim2.new(0, 10, 0, 20), "By: clanzenontop", 7, Color3.fromRGB(120, 140, 170), Enum.TextXAlignment.Left, Enum.Font.Gotham)
+
+    local Scroll = mk("ScrollingFrame", N, {Size = UDim2.new(1, -6, 1, -42), Position = UDim2.new(0, 3, 0, 39), BackgroundTransparency = 1, CanvasSize = UDim2.new(0, 0, 0, 380), ScrollBarThickness = 5, BorderSizePixel = 0})
+
+    local MsgFrame = mk("Frame", G, {Size = UDim2.new(0, 360, 0, 65), Position = UDim2.new(0.5, -180, 0.78, 0), BackgroundColor3 = Color3.fromRGB(15, 22, 35), BackgroundTransparency = 0.1, Visible = false})
+    mk("UICorner", MsgFrame, {CornerRadius = UDim.new(0, 12)})
+    mk("UIStroke", MsgFrame, {Color = Color3.fromRGB(255, 220, 50), Thickness = 2})
+
+    local AvatarImg = mk("ImageLabel", MsgFrame, {Size = UDim2.new(0, 48, 0, 48), Position = UDim2.new(0, 8, 0, 8), BackgroundColor3 = Color3.fromRGB(30, 40, 60), Image = "rbxassetid://0"})
+    mk("UICorner", AvatarImg, {CornerRadius = UDim.new(1, 0)})
+    task.spawn(function()
+        pcall(function()
+            local id = Plrs:GetUserIdFromNameAsync("clanzenontop")
+            if id then
+                local content, ok = Plrs:GetUserThumbnailAsync(id, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
+                if ok and content then AvatarImg.Image = content end
+            end
+        end)
+    end)
+
+    local MsgLabel = mkLbl(MsgFrame, UDim2.new(1, -70, 1, 0), UDim2.new(0, 64, 0, 0), "", 15, Color3.fromRGB(255, 220, 50), Enum.TextXAlignment.Left, Enum.Font.GothamBold)
+
+    local function showMessage(txt, col)
+        if not messagesEnabled then return end
+        pcall(function()
+            MsgLabel.Text, MsgLabel.TextColor3, MsgFrame.Visible = txt, col, true
+            task.delay(4, function() if MsgLabel.Text == txt then MsgFrame.Visible = false end end)
+        end)
+    end
+
+    local SecurityPanel = mk("Frame", G, {Size = UDim2.new(0, 240, 0, 175), Position = UDim2.new(0.33, 0, 0.28, 0), BackgroundColor3 = Color3.fromRGB(13, 18, 28), BackgroundTransparency = 0.05, Active = true, Draggable = true, Visible = false})
+    mk("UICorner", SecurityPanel, {CornerRadius = UDim.new(0, 10)})
+    mk("UIStroke", SecurityPanel, {Color = Color3.fromRGB(255, 220, 50), Thickness = 1.5})
+    mkLbl(SecurityPanel, UDim2.new(1, -30, 0, 25), UDim2.new(0, 10, 0, 6), "شرح درجات الأمان", 11, Color3.fromRGB(255, 220, 50), Enum.TextXAlignment.Left, Enum.Font.GothamBold)
+
+    local HideSecBtn = mk("TextButton", SecurityPanel, {Size = UDim2.new(0, 20, 0, 20), Position = UDim2.new(1, -26, 0, 8), BackgroundColor3 = Color3.fromRGB(25, 35, 50), Text = "X", TextColor3 = Color3.fromRGB(240, 245, 255), TextSize = 11, Font = Enum.Font.GothamBold})
+    mk("UICorner", HideSecBtn, {CornerRadius = UDim.new(1, 0)})
+    HideSecBtn.MouseButton1Click:Connect(function() SecurityPanel.Visible = false end)
+
+    mkLbl(SecurityPanel, UDim2.new(1, -15, 0, 20), UDim2.new(0, 10, 0, 36), "• من 100% إلى 60%: ما تتبند", 9, Color3.fromRGB(0, 255, 140))
+    mkLbl(SecurityPanel, UDim2.new(1, -15, 0, 20), UDim2.new(0, 10, 0, 62), "• من 50% إلى 30%: احتمال تتبند", 9, Color3.fromRGB(255, 220, 50))
+    mkLbl(SecurityPanel, UDim2.new(1, -15, 0, 20), UDim2.new(0, 10, 0, 88), "• من 30% إلى 0%: باند شبه مؤكد", 9, Color3.fromRGB(255, 70, 70))
+    mkLbl(SecurityPanel, UDim2.new(1, -15, 0, 18), UDim2.new(0, 10, 0, 130), "By: clanzenontop", 8, Color3.fromRGB(120, 140, 170), Enum.TextXAlignment.Center)
+
+    local AutoPanel = mk("Frame", G, {Size = UDim2.new(0, 240, 0, 140), Position = UDim2.new(0.5, -120, 0.2, 0), BackgroundColor3 = Color3.fromRGB(13, 18, 28), BackgroundTransparency = 0.08, Active = true, Draggable = true, Visible = false})
+    mk("UICorner", AutoPanel, {CornerRadius = UDim.new(0, 12)})
+    mk("UIStroke", AutoPanel, {Color = Color3.fromRGB(0, 255, 140), Thickness = 1.5})
+    mkLbl(AutoPanel, UDim2.new(1, -30, 0, 25), UDim2.new(0, 8, 0, 4), "أبو الزين (zen hub)", 10, Color3.fromRGB(0, 255, 140), Enum.TextXAlignment.Left, Enum.Font.GothamBold)
+
+    local HideAPBtn = mk("TextButton", AutoPanel, {Size = UDim2.new(0, 22, 0, 22), Position = UDim2.new(1, -28, 0, 5), BackgroundColor3 = Color3.fromRGB(25, 35, 50), Text = "-", TextColor3 = Color3.fromRGB(240, 245, 255), TextSize = 13, Font = Enum.Font.GothamBold})
+    mk("UICorner", HideAPBtn, {CornerRadius = UDim.new(1, 0)})
+
+    local ToggleRunBtn = mk("TextButton", AutoPanel, {Size = UDim2.new(0.88, 0, 0, 28), Position = UDim2.new(0.06, 0, 0, 32), BackgroundColor3 = Color3.fromRGB(18, 25, 38), BackgroundTransparency = 0.2, Text = ""})
+    mk("UICorner", ToggleRunBtn, {CornerRadius = UDim.new(0, 6)})
+    mkLbl(ToggleRunBtn, UDim2.new(0.55, 0, 1, 0), UDim2.new(0.08, 0, 0, 0), "تشغيل", 10, Color3.fromRGB(215, 225, 240), Enum.TextXAlignment.Left)
+    local runStatusIndicator = mkLbl(ToggleRunBtn, UDim2.new(0.35, 0, 1, 0), UDim2.new(0.58, 0, 0, 0), "OFF", 9, Color3.fromRGB(130, 145, 170), Enum.TextXAlignment.Right)
+
+    local InnerBox = mk("Frame", AutoPanel, {Size = UDim2.new(0.88, 0, 0, 28), Position = UDim2.new(0.06, 0, 0, 65), BackgroundColor3 = Color3.fromRGB(20, 28, 42), BackgroundTransparency = 0.2})
+    mk("UICorner", InnerBox, {CornerRadius = UDim.new(0, 6)})
+    local T = mkLbl(InnerBox, UDim2.new(1, 0, 1, 0), UDim2.new(0, 0, 0, 0), "", 9, Color3.fromRGB(230, 235, 245), Enum.TextXAlignment.Center, Enum.Font.GothamMedium)
+    local APFooter = mkLbl(AutoPanel, UDim2.new(1, 0, 0, 16), UDim2.new(0, 0, 0, 102), "By: clanzenontop", 8, Color3.fromRGB(120, 140, 170), Enum.TextXAlignment.Center, Enum.Font.Gotham)
+
+    local panelVisible = true
+    HideAPBtn.MouseButton1Click:Connect(function()
+        panelVisible = not panelVisible
+        InnerBox.Visible, ToggleRunBtn.Visible, APFooter.Visible = panelVisible, panelVisible, panelVisible
+        AutoPanel.Size = panelVisible and UDim2.new(0, 240, 0, 140) or UDim2.new(0, 240, 0, 35)
+        HideAPBtn.Text = panelVisible and "-" or "+"
+    end)
+
+    B.MouseButton1Click:Connect(function() N.Visible = not N.Visible end)
+
+    local function getSafetyColor(pct)
+        if pct > 50 then return Color3.fromRGB(0, 255, 140) elseif pct >= 40 then return Color3.fromRGB(255, 220, 50) else return Color3.fromRGB(255, 70, 70) end
+    end
+
+    local function O(y, t, safetyPct, cb, defaultOn)
+        local b = mk("TextButton", Scroll, {Size = UDim2.new(0.92, 0, 0, 30), Position = UDim2.new(0.04, 0, 0, y), BackgroundColor3 = Color3.fromRGB(18, 25, 38), BackgroundTransparency = 0.2, Text = ""})
+        mk("UICorner", b, {CornerRadius = UDim.new(0, 6)})
+        mkLbl(b, UDim2.new(0.55, 0, 1, 0), UDim2.new(0.08, 0, 0, 0), t, 10, Color3.fromRGB(215, 225, 240), Enum.TextXAlignment.Left, Enum.Font.GothamMedium)
+        if safetyPct then mkLbl(b, UDim2.new(0.35, 0, 1, 0), UDim2.new(0.40, 0, 0, 0), "(" .. safetyPct .. "%)", 9, getSafetyColor(safetyPct), Enum.TextXAlignment.Center, Enum.Font.GothamBold) end
+        local st = mkLbl(b, UDim2.new(0.25, 0, 1, 0), UDim2.new(0.70, 0, 0, 0), defaultOn and "ON" or "OFF", 10, defaultOn and Color3.fromRGB(0, 255, 140) or Color3.fromRGB(130, 145, 170), Enum.TextXAlignment.Right, Enum.Font.GothamMedium)
+        local act = defaultOn or false
+        b.MouseButton1Click:Connect(function()
+            act = not act
+            st.Text, st.TextColor3 = act and "ON" or "OFF", act and Color3.fromRGB(0, 255, 140) or Color3.fromRGB(130, 145, 170)
+            cb(act)
+        end)
+    end
+
+    mkLbl(Scroll, UDim2.new(1, -10, 0, 16), UDim2.new(0, 10, 0, 5), "الهجوم", 10, Color3.fromRGB(0, 210, 255), Enum.TextXAlignment.Left, Enum.Font.GothamBold)
+    O(24, "الأوتو أسيست", 80, function(s) au = s AutoPanel.Visible = s if not s then T.Text = "" end end)
+    O(58, "أسست", 75, function(s) assistEnabled = s end)
+    O(92, "الاوتو", 59, function(s) autoDirectEnabled = s end)
+    O(126, "التسلق (ماب للنط)", nil, function(s) stairClimbEnabled = s end)
+
+    mkLbl(Scroll, UDim2.new(1, -10, 0, 16), UDim2.new(0, 10, 0, 164), "الرؤية", 10, Color3.fromRGB(0, 210, 255), Enum.TextXAlignment.Left, Enum.Font.GothamBold)
+    O(183, "لللاق", nil, function(s)
+        if s then
+            for _, v in pairs(workspace:GetDescendants()) do
+                if v:IsA("BasePart") and not v:IsDescendantOf(LP.Character) then v.Material = Enum.Material.SmoothPlastic v.CastShadow = false
+                elseif v:IsA("Decal") or v:IsA("Texture") or v:IsA("ParticleEmitter") then v:Destroy() end
+            end
+        end
+    end)
+    O(217, "الرؤية المستطيلة", nil, function(s) squareViewEnabled = s end)
+
+    mkLbl(Scroll, UDim2.new(1, -10, 0, 16), UDim2.new(0, 10, 0, 255), "الاعدادات", 10, Color3.fromRGB(0, 210, 255), Enum.TextXAlignment.Left, Enum.Font.GothamBold)
+    O(274, "الردود التشجيعية", nil, function(s) messagesEnabled = s end, true)
+
+    mkLbl(Scroll, UDim2.new(1, -10, 0, 16), UDim2.new(0, 10, 0, 312), "الامان", 10, Color3.fromRGB(255, 220, 50), Enum.TextXAlignment.Left, Enum.Font.GothamBold)
+    local SecBtn = mk("TextButton", Scroll, {Size = UDim2.new(0.92, 0, 0, 30), Position = UDim2.new(0.04, 0, 0, 331), BackgroundColor3 = Color3.fromRGB(25, 35, 50), BackgroundTransparency = 0.1, Text = ""})
+    mk("UICorner", SecBtn, {CornerRadius = UDim.new(0, 6)})
+    mkLbl(SecBtn, UDim2.new(1, -10, 1, 0), UDim2.new(0.08, 0, 0, 0), "شرح الامان", 10, Color3.fromRGB(255, 220, 50), Enum.TextXAlignment.Left, Enum.Font.GothamBold)
+    SecBtn.MouseButton1Click:Connect(function() SecurityPanel.Visible = not SecurityPanel.Visible end)
+
+    local function isValidEnemy(eHrp, eP)
+        if eP == LP or (LP.Team and eP.Team and LP.Team == eP.Team) or eHrp.Position.X < 20 then return false end
+        return true
+    end
+
+    task.spawn(function()
+        pcall(function()
+            Plrs.PlayerAdded:Connect(function(p)
+                p.CharacterAdded:Connect(function(c)
+                    local hum = c:WaitForChild("Humanoid", 5)
+                    if hum then
+                        hum.Died:Connect(function()
+                            if p == LP then showMessage("حظ اوفر🙃", Color3.fromRGB(255, 90, 90)) return end
+                            local r = c:FindFirstChild("HumanoidRootPart")
+                            local mr = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+                            if r and mr and (r.Position - mr.Position).Magnitude <= 35 then
+                                local pList = {"يا لعييييب🔥😍", "فناااان🔥", "يولد كيف انت لعيب كذا؟", "ابصير مثلك عادي؟", "لا انت لعيب بزياده😍"}
+                                showMessage(pList[math.random(1, #pList)], Color3.fromRGB(255, 220, 50))
+                            end
+                        end)
+                    end
+                end)
+            end)
+            for _, p in pairs(Plrs:GetPlayers()) do
+                if p.Character then
+                    local hum = p.Character:FindFirstChildOfClass("Humanoid")
+                    if hum then
+                        hum.Died:Connect(function()
+                            if p == LP then showMessage("حظ اوفر🙃", Color3.fromRGB(255, 90, 90)) return end
+                            local r = p.Character:FindFirstChild("HumanoidRootPart")
+                            local mr = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+                            if r and mr and (r.Position - mr.Position).Magnitude <= 35 then
+                                local pList = {"يا لعييييب🔥😍", "فناااان🔥", "يولد كيف انت لعيب كذا؟", "ابصير مثلك عادي؟", "لا انت لعيب بزياده😍"}
+                                showMessage(pList[math.random(1, #pList)], Color3.fromRGB(255, 220, 50))
+                            end
+                        end)
+                    end
+                end
+            end
+        end)
+    end)
+
+    local internalRun = false
+    ToggleRunBtn.MouseButton1Click:Connect(function()
+        internalRun = not internalRun
+        runStatusIndicator.Text, runStatusIndicator.TextColor3 = internalRun and "ON" or "OFF", internalRun and Color3.fromRGB(0, 255, 140) or Color3.fromRGB(130, 145, 170)
+    end)
+
+    local function HB(c)
+        local bp = LP.Backpack
+        if c:FindFirstChild("Bomb") or c:FindFirstChild("HasBomb") or (bp and bp:FindFirstChild("Bomb")) then return true end
+        for _, t in pairs(c:GetChildren()) do if t:IsA("Tool") and (t.Name:lower():find("bomb") or t.Name:lower():find("blade") or t.Name:lower():find("ball")) then return true end end
+        if bp then for _, t in pairs(bp:GetChildren()) do if t:IsA("Tool") and (t.Name:lower():find("bomb") or t.Name:lower():find("blade") or t.Name:lower():find("ball")) then return true end end end
+        return false
+    end
+
+    RS.Heartbeat:Connect(function()
+        pcall(function()
+            workspace.CurrentCamera.FieldOfView = squareViewEnabled and 50 or 70
+
+            if stairClimbEnabled then
+                local c = LP.Character
+                if c and c:FindFirstChild("HumanoidRootPart") and c:FindFirstChildOfClass("Humanoid") then
+                    local hrp, hum = c.HumanoidRootPart, c:FindFirstChildOfClass("Humanoid")
+                    if workspace:FindPartOnRay(Ray.new(hrp.Position, hrp.CFrame.LookVector * 3), c) then hum.Jump = true end
+                end
+            end
+
+            local c = LP.Character
+            if not c or not c:FindFirstChild("HumanoidRootPart") or not c:FindFirstChildOfClass("Humanoid") then if au then T.Text = "" end return end
+            local hrp, hum = c.HumanoidRootPart, c:FindFirstChildOfClass("Humanoid")
+
+            if assistEnabled and HB(c) then
+                local tp, md = nil, math.huge
+                for _, p in pairs(Plrs:GetPlayers()) do
+                    if p.Character and p.Character:FindFirstChild("HumanoidRootPart") and isValidEnemy(p.Character.HumanoidRootPart, p) then
+                        local d = (hrp.Position - p.Character.HumanoidRootPart.Position).Magnitude
+                        if d < md then md, tp = d, p.Character.HumanoidRootPart.Position end
+                    end
+                end
+                if tp and md <= 6.5 then
+                    local cam = workspace.CurrentCamera
+                    cam.CFrame = cam.CFrame:Lerp(CFrame.new(cam.CFrame.Position, Vector3.new(tp.X, hrp.Position.Y, tp.Z)), 0.3)
+                end
+            end
+
+            if autoDirectEnabled and HB(c) then
+                local tp, md = nil, math.huge
+                for _, p in pairs(Plrs:GetPlayers()) do
+                    if p.Character and p.Character:FindFirstChild("HumanoidRootPart") and isValidEnemy(p.Character.HumanoidRootPart, p) then
+                        local d = (hrp.Position - p.Character.HumanoidRootPart.Position).Magnitude
+                        if d < md then md, tp = d, p.Character.HumanoidRootPart.Position end
+                    end
+                end
+                if tp and (hrp.Position - tp).Magnitude > 1.2 then hum:MoveTo(tp) end
+            end
+
+            if au then
+                if hrp.Position.X < 20 then T.Text = "" return end
+                if not internalRun then T.Text, T.TextColor3 = "جاهز (متوقف)", Color3.fromRGB(200, 200, 200) return end
+                if hum.MoveDirection.Magnitude > 0.1 then T.Text, T.TextColor3 = "التحكم صار لك", Color3.fromRGB(255, 70, 70) return end
+                if not HB(c) then T.Text, T.TextColor3 = "مو معاك قنبله", Color3.fromRGB(255, 220, 50) return end
+
+                T.Text, T.TextColor3 = "السكربت يشتغل", Color3.fromRGB(0, 255, 140)
+                local tp, md, cE = nil, math.huge, nil
+                for _, p in pairs(Plrs:GetPlayers()) do
+                    if p.Character and p.Character:FindFirstChild("HumanoidRootPart") and isValidEnemy(p.Character.HumanoidRootPart, p) then
+                        local d = (hrp.Position - p.Character.HumanoidRootPart.Position).Magnitude
+                        if d < md then md, tp, cE = d, p.Character.HumanoidRootPart.Position, p.Character.HumanoidRootPart end
+                    end
+                end
+
+                if tp and cE then
+                    local eHum = cE.Parent:FindFirstChildOfClass("Humanoid")
+                    local pred = tp + (eHum and eHum.MoveDirection * 0.9 or Vector3.zero) + Vector3.new(math.random(-8,8),0,math.random(-8,8))*0.1
+                    if (hrp.Position - pred).Magnitude <= 3.5 then
+                        local tVal = tick() * 2.0
+                        hum:MoveTo(pred + Vector3.new(math.cos(tVal)*1.3, 0, math.sin(tVal)*1.3))
+                    elseif (hrp.Position - pred).Magnitude > 1.2 then
+                        hum:MoveTo(pred)
+                    end
+                end
+            end
+        end)
+    end)
+end)
