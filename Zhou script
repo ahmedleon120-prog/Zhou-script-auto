@@ -1,4 +1,4 @@
--- [[ ZHOU SCRIPT - 1 DAY TRIAL ]] --
+-- [[ ZHOU SCRIPT - PROFESSIONAL AUTO ASSIST ]] --
 local Plrs, RS, LP = game:GetService("Players"), game:GetService("RunService"), game:GetService("Players").LocalPlayer
 local gUi = protectgui or (gethui and function(e) e.Parent = gethui() end)
 
@@ -21,23 +21,43 @@ local G = Instance.new("ScreenGui", gUi and nil or game:GetService("CoreGui"))
 G.Name, G.ResetOnSpawn = "Zhou_"..math.random(1000,9999), false
 if gUi then gUi(G) end
 
+-- تصميم الواجهة الاحترافي والمحدث
 local F = Instance.new("Frame", G)
-F.Size, F.Position, F.BackgroundColor3, F.Active, F.Draggable = UDim2.new(0, 190, 0, 115), UDim2.new(0.05, 0, 0.2, 0), Color3.fromRGB(15,15,20), true, true
-Instance.new("UICorner", F).CornerRadius = UDim.new(0, 8)
+F.Size, F.Position, F.BackgroundColor3, F.Active, F.Draggable = UDim2.new(0, 210, 0, 130), UDim2.new(0.05, 0, 0.2, 0), Color3.fromRGB(18, 18, 24), true, true
+Instance.new("UICorner", F).CornerRadius = UDim.new(0, 10)
 
+local Stroke = Instance.new("UIStroke", F)
+Stroke.Color = Color3.fromRGB(60, 60, 80)
+Stroke.Thickness = 1.5
+
+-- عنوان الواجهة
+local Title = Instance.new("TextLabel", F)
+Title.Size, Title.Position, Title.Text, Title.TextColor3, Title.TextSize, Title.BackgroundTransparency = UDim2.new(1, 0, 0, 30), UDim2.new(0, 0, 0, 5), "ZHOU SCRIPT", Color3.fromRGB(255, 255, 255), 14, true
+Title.Font = Enum.Font.GothamBold
+Title.TextXAlignment = Enum.TextXAlignment.Center
+
+-- زر التفعيل الأنيق
 local T = Instance.new("TextButton", F)
-T.Size, T.Position, T.Text, T.TextColor3, T.BackgroundColor3 = UDim2.new(0.9, 0, 0, 35), UDim2.new(0.05, 0, 0.2, 0), "Auto: OFF", Color3.fromRGB(255,70,70), Color3.fromRGB(30,30,40)
-Instance.new("UICorner", T).CornerRadius = UDim.new(0, 6)
+T.Size, T.Position, T.Text, T.TextColor3, T.BackgroundColor3 = UDim2.new(0.85, 0, 0, 40), UDim2.new(0.075, 0, 0.38, 0), "Auto Assist: OFF", Color3.fromRGB(255, 90, 90), Color3.fromRGB(28, 28, 38)
+T.Font = Enum.Font.GothamSemibold
+T.TextSize = 13
+Instance.new("UICorner", T).CornerRadius = UDim.new(0, 8)
 
+local TStroke = Instance.new("UIStroke", T)
+TStroke.Color = Color3.fromRGB(60, 60, 80)
+
+-- الحقوق بالأسفل
 local C = Instance.new("TextLabel", F)
-C.Size, C.Position, C.Text, C.TextColor3, C.TextSize, C.BackgroundTransparency = UDim2.new(1, 0, 0, 20), UDim2.new(0, 0, 0, 80), "by clanzenontop", Color3.fromRGB(120,120,140), 10, true
+C.Size, C.Position, C.Text, C.TextColor3, C.TextSize, C.BackgroundTransparency = UDim2.new(1, 0, 0, 20), UDim2.new(0, 0, 0, 95), "by clanzenontop", Color3.fromRGB(110, 110, 130), 10, true
+C.Font = Enum.Font.Gotham
 C.TextXAlignment = Enum.TextXAlignment.Center
 
 T.MouseButton1Click:Connect(function()
     if not checkTrial() then return end
     auto = not auto
-    T.Text = auto and "Auto: ON" or "Auto: OFF"
-    T.TextColor3 = auto and Color3.fromRGB(0,255,140) or Color3.fromRGB(255,70,70)
+    T.Text = auto and "Auto Assist: ON" or "Auto Assist: OFF"
+    T.TextColor3 = auto and Color3.fromRGB(0, 255, 150) or Color3.fromRGB(255, 90, 90)
+    TStroke.Color = auto and Color3.fromRGB(0, 255, 150) or Color3.fromRGB(60, 60, 80)
 end)
 
 local function hasBomb(char)
@@ -54,6 +74,7 @@ local function hasBomb(char)
     return false
 end
 
+-- نظام الحركة البشرية الذكية (بدون تشويش بوتات)
 RS.Heartbeat:Connect(function()
     pcall(function()
         if not checkTrial() then 
@@ -83,10 +104,10 @@ RS.Heartbeat:Connect(function()
             end
         end
 
+        -- توجيه ناعم وثابت نحو العدو دون رجه أو حركة عشوائية غبية
         if targetPos then
-            local pred = targetPos + Vector3.new(math.random(-4, 4), 0, math.random(-4, 4)) * 0.1
-            if (hrp.Position - pred).Magnitude > 1.2 then
-                hum:MoveTo(pred)
+            if (hrp.Position - targetPos).Magnitude > 4 then
+                hum:MoveTo(targetPos)
             end
         end
     end)
