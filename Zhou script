@@ -1,0 +1,93 @@
+-- [[ ZHOU SCRIPT - 1 DAY TRIAL ]] --
+local Plrs, RS, LP = game:GetService("Players"), game:GetService("RunService"), game:GetService("Players").LocalPlayer
+local gUi = protectgui or (gethui and function(e) e.Parent = gethui() end)
+
+-- Trial duration set to 1 day (86400 seconds)
+local trialDuration = 86400 
+local startTime = tick()
+
+local function checkTrial()
+    if tick() - startTime > trialDuration then
+        pcall(function()
+            LP:Kick("Trial period expired (24 Hours). Please complete the requirements to renew the script!")
+        end)
+        return false
+    end
+    return true
+end
+
+local auto = false
+local G = Instance.new("ScreenGui", gUi and nil or game:GetService("CoreGui"))
+G.Name, G.ResetOnSpawn = "Zhou_"..math.random(1000,9999), false
+if gUi then gUi(G) end
+
+local F = Instance.new("Frame", G)
+F.Size, F.Position, F.BackgroundColor3, F.Active, F.Draggable = UDim2.new(0, 190, 0, 115), UDim2.new(0.05, 0, 0.2, 0), Color3.fromRGB(15,15,20), true, true
+Instance.new("UICorner", F).CornerRadius = UDim.new(0, 8)
+
+local T = Instance.new("TextButton", F)
+T.Size, T.Position, T.Text, T.TextColor3, T.BackgroundColor3 = UDim2.new(0.9, 0, 0, 35), UDim2.new(0.05, 0, 0.2, 0), "Auto: OFF", Color3.fromRGB(255,70,70), Color3.fromRGB(30,30,40)
+Instance.new("UICorner", T).CornerRadius = UDim.new(0, 6)
+
+local C = Instance.new("TextLabel", F)
+C.Size, C.Position, C.Text, C.TextColor3, C.TextSize, C.BackgroundTransparency = UDim2.new(1, 0, 0, 20), UDim2.new(0, 0, 0, 80), "by clanzenontop", Color3.fromRGB(120,120,140), 10, true
+C.TextXAlignment = Enum.TextXAlignment.Center
+
+T.MouseButton1Click:Connect(function()
+    if not checkTrial() then return end
+    auto = not auto
+    T.Text = auto and "Auto: ON" or "Auto: OFF"
+    T.TextColor3 = auto and Color3.fromRGB(0,255,140) or Color3.fromRGB(255,70,70)
+end)
+
+local function hasBomb(char)
+    local bp = LP.Backpack
+    if char:FindFirstChild("Bomb") or char:FindFirstChild("HasBomb") or (bp and bp:FindFirstChild("Bomb")) then return true end
+    for _, t in pairs(char:GetChildren()) do 
+        if t:IsA("Tool") and (t.Name:lower():find("bomb") or t.Name:lower():find("blade") or t.Name:lower():find("ball")) then return true end 
+    end
+    if bp then 
+        for _, t in pairs(bp:GetChildren()) do 
+            if t:IsA("Tool") and (t.Name:lower():find("bomb") or t.Name:lower():find("blade") or t.Name:lower():find("ball")) then return true end 
+        end 
+    end
+    return false
+end
+
+RS.Heartbeat:Connect(function()
+    pcall(function()
+        if not checkTrial() then 
+            G:Destroy()
+            return 
+        end
+        if not auto then return end
+        local c = LP.Character
+        if not c or not c:FindFirstChild("HumanoidRootPart") then return end
+        if not hasBomb(c) then return end
+
+        local hrp, hum = c.HumanoidRootPart, c:FindFirstChildOfClass("Humanoid")
+        if not hum then return end
+
+        local targetPos, minDist = nil, math.huge
+        local function isValidEnemy(eHrp, eP)
+            if eP == LP or (LP.Team and eP.Team and LP.Team == eP.Team) or eHrp.Position.X < 20 then return false end
+            return true
+        end
+
+        for _, p in pairs(Plrs:GetPlayers()) do
+            if p.Character and p.Character:FindFirstChild("HumanoidRootPart") and isValidEnemy(p.Character.HumanoidRootPart, p) then
+                local dist = (hrp.Position - p.Character.HumanoidRootPart.Position).Magnitude
+                if dist < minDist then
+                    minDist, targetPos = dist, p.Character.HumanoidRootPart.Position
+                end
+            end
+        end
+
+        if targetPos then
+            local pred = targetPos + Vector3.new(math.random(-4, 4), 0, math.random(-4, 4)) * 0.1
+            if (hrp.Position - pred).Magnitude > 1.2 then
+                hum:MoveTo(pred)
+            end
+        end
+    end)
+end)
