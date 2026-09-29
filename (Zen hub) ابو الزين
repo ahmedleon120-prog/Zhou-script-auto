@@ -27,11 +27,49 @@ pcall(function()
         return mk("TextLabel", p, {Size = sz, Position = pos, Text = txt, TextSize = szs, TextColor3 = col, Font = font or Enum.Font.GothamMedium, BackgroundTransparency = 1, TextXAlignment = alg or Enum.TextXAlignment.Left})
     end
 
+    -- دالة إنشاء الشعار الوهمي فوق الرأس (يراه الجميع)
+    local currentFakeDevice = "PC"
+    local function updateFakeBillboard(char)
+        pcall(function()
+            if not char then return end
+            local head = char:FindFirstChild("Head") or char:FindFirstChild("HumanoidRootPart")
+            if not head then return end
+            
+            -- حذف القديم إن وجد
+            local old = char:FindFirstChild("FakeDeviceDisplay")
+            if old then old:Destroy() end
+
+            local bb = Instance.new("BillboardGui", char)
+            bb.Name = "FakeDeviceDisplay"
+            bb.Size = UDim2.new(0, 100, 0, 40)
+            bb.StudsOffset = Vector3.new(0, 2.5, 0)
+            bb.AlwaysOnTop = true
+            bb.Adornee = head
+
+            local txtLbl = Instance.new("TextLabel", bb)
+            txtLbl.Size = UDim2.new(1, 0, 1, 0)
+            txtLbl.BackgroundTransparency = 1
+            txtLbl.Text = "[" .. currentFakeDevice .. "]"
+            txtLbl.TextColor3 = Color3.fromRGB(0, 210, 255)
+            txtLbl.TextSize = 16
+            txtLbl.Font = Enum.Font.GothamBold
+            txtLbl.TextStrokeTransparency = 0.3
+            txtLbl.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+        end)
+    end
+
+    if LP.Character then updateFakeBillboard(LP.Character) end
+    LP.CharacterAdded:Connect(function(c)
+        c:WaitForChild("HumanoidRootPart", 5)
+        task.wait(1)
+        updateFakeBillboard(c)
+    end)
+
     local B = mk("TextButton", G, {Size = UDim2.new(0, 40, 0, 40), Position = UDim2.new(0.05, 0, 0.18, 0), BackgroundColor3 = Color3.fromRGB(15, 22, 35), Text = "Z", TextColor3 = Color3.fromRGB(240, 245, 255), TextSize = 15, Active = true, Draggable = true, Font = Enum.Font.GothamBold})
     mk("UICorner", B, {CornerRadius = UDim.new(1, 0)})
     mk("UIStroke", B, {Color = Color3.fromRGB(0, 210, 255), Thickness = 2})
 
-    local N = mk("Frame", G, {Size = UDim2.new(0, 240, 0, 250), Position = UDim2.new(0.05, 0, 0.28, 0), BackgroundColor3 = Color3.fromRGB(13, 18, 28), BackgroundTransparency = 0.05, Visible = false, Active = true, Draggable = true})
+    local N = mk("Frame", G, {Size = UDim2.new(0, 240, 0, 280), Position = UDim2.new(0.05, 0, 0.28, 0), BackgroundColor3 = Color3.fromRGB(13, 18, 28), BackgroundTransparency = 0.05, Visible = false, Active = true, Draggable = true})
     mk("UICorner", N, {CornerRadius = UDim.new(0, 10)})
     mk("UIStroke", N, {Color = Color3.fromRGB(0, 180, 255), Thickness = 1.5})
 
@@ -40,7 +78,7 @@ pcall(function()
     mkLbl(TopBar, UDim2.new(1, -20, 0, 16), UDim2.new(0, 10, 0, 3), "أبو الزين (zen hub)", 10, Color3.fromRGB(0, 210, 255), Enum.TextXAlignment.Left, Enum.Font.GothamBold)
     mkLbl(TopBar, UDim2.new(1, -20, 0, 10), UDim2.new(0, 10, 0, 20), "By: clanzenontop", 7, Color3.fromRGB(120, 140, 170), Enum.TextXAlignment.Left, Enum.Font.Gotham)
 
-    local Scroll = mk("ScrollingFrame", N, {Size = UDim2.new(1, -6, 1, -42), Position = UDim2.new(0, 3, 0, 39), BackgroundTransparency = 1, CanvasSize = UDim2.new(0, 0, 0, 380), ScrollBarThickness = 5, BorderSizePixel = 0})
+    local Scroll = mk("ScrollingFrame", N, {Size = UDim2.new(1, -6, 1, -42), Position = UDim2.new(0, 3, 0, 39), BackgroundTransparency = 1, CanvasSize = UDim2.new(0, 0, 0, 440), ScrollBarThickness = 5, BorderSizePixel = 0})
 
     local MsgFrame = mk("Frame", G, {Size = UDim2.new(0, 360, 0, 65), Position = UDim2.new(0.5, -180, 0.78, 0), BackgroundColor3 = Color3.fromRGB(15, 22, 35), BackgroundTransparency = 0.1, Visible = false})
     mk("UICorner", MsgFrame, {CornerRadius = UDim.new(0, 12)})
@@ -81,6 +119,52 @@ pcall(function()
     mkLbl(SecurityPanel, UDim2.new(1, -15, 0, 20), UDim2.new(0, 10, 0, 62), "• من 50% إلى 30%: احتمال تتبند", 9, Color3.fromRGB(255, 220, 50))
     mkLbl(SecurityPanel, UDim2.new(1, -15, 0, 20), UDim2.new(0, 10, 0, 88), "• من 30% إلى 0%: باند شبه مؤكد", 9, Color3.fromRGB(255, 70, 70))
     mkLbl(SecurityPanel, UDim2.new(1, -15, 0, 18), UDim2.new(0, 10, 0, 130), "By: clanzenontop", 8, Color3.fromRGB(120, 140, 170), Enum.TextXAlignment.Center)
+
+    -- نافذة PhantomX Device Spoofer الوهمي الاحترافي
+    local DevicePanel = mk("Frame", G, {Size = UDim2.new(0, 240, 0, 190), Position = UDim2.new(0.4, 0, 0.25, 0), BackgroundColor3 = Color3.fromRGB(13, 18, 28), BackgroundTransparency = 0.05, Active = true, Draggable = true, Visible = false})
+    mk("UICorner", DevicePanel, {CornerRadius = UDim.new(0, 12)})
+    mk("UIStroke", DevicePanel, {Color = Color3.fromRGB(0, 210, 255), Thickness = 1.5})
+    mkLbl(DevicePanel, UDim2.new(1, -30, 0, 25), UDim2.new(0, 10, 0, 6), "PhantomX Device Spoofer", 10, Color3.fromRGB(240, 245, 255), Enum.TextXAlignment.Left, Enum.Font.GothamBold)
+
+    local HideDevBtn = mk("TextButton", DevicePanel, {Size = UDim2.new(0, 20, 0, 20), Position = UDim2.new(1, -26, 0, 8), BackgroundColor3 = Color3.fromRGB(25, 35, 50), Text = "X", TextColor3 = Color3.fromRGB(240, 245, 255), TextSize = 11, Font = Enum.Font.GothamBold})
+    mk("UICorner", HideDevBtn, {CornerRadius = UDim.new(1, 0)})
+    HideDevBtn.MouseButton1Click:Connect(function() DevicePanel.Visible = false end)
+
+    local function createDevOpt(yPos, name, active)
+        local btn = mk("TextButton", DevicePanel, {Size = UDim2.new(0.9, 0, 0, 32), Position = UDim2.new(0.05, 0, 0, yPos), BackgroundColor3 = active and Color3.fromRGB(75, 45, 130) or Color3.fromRGB(20, 28, 42), Text = ""})
+        mk("UICorner", btn, {CornerRadius = UDim.new(0, 6)})
+        local lbl = mkLbl(btn, UDim2.new(1, -10, 1, 0), UDim2.new(0.1, 0, 0, 0), name .. (active and " [Active]" or ""), 10, Color3.fromRGB(240, 245, 255), Enum.TextXAlignment.Left, Enum.Font.GothamBold)
+        return btn, lbl
+    end
+
+    local devPC, lblPC = createDevOpt(38, "PC", true)
+    local devConsole, lblConsole = createDevOpt(78, "Console", false)
+    local devMobile, lblMobile = createDevOpt(118, "Mobile", false)
+    
+    local confirmMsg = mkLbl(DevicePanel, UDim2.new(1, 0, 0, 20), UDim2.new(0, 0, 0, 158), "", 9, Color3.fromRGB(255, 220, 50), Enum.TextXAlignment.Center)
+
+    local function setDevice(mode)
+        currentFakeDevice = mode
+        devPC.BackgroundColor3, devConsole.BackgroundColor3, devMobile.BackgroundColor3 = Color3.fromRGB(20, 28, 42), Color3.fromRGB(20, 28, 42), Color3.fromRGB(20, 28, 42)
+        lblPC.Text, lblConsole.Text, lblMobile.Text = "PC", "Console", "Mobile"
+        if mode == "PC" then
+            devPC.BackgroundColor3 = Color3.fromRGB(75, 45, 130)
+            lblPC.Text = "PC [Active]"
+        elseif mode == "Console" then
+            devConsole.BackgroundColor3 = Color3.fromRGB(75, 45, 130)
+            lblConsole.Text = "Console [Active]"
+        elseif mode == "Mobile" then
+            devMobile.BackgroundColor3 = Color3.fromRGB(75, 45, 130)
+            lblMobile.Text = "Mobile [Active]"
+        end
+        confirmMsg.Text = "Fake " .. mode .. " Applied to Head!"
+        if LP.Character then updateFakeBillboard(LP.Character) end
+        task.delay(2, function() confirmMsg.Text = "" end)
+    end
+
+    devPC.MouseButton1Click:Connect(function() setDevice("PC") end)
+    devConsole.MouseButton1Click:Connect(function() setDevice("Console") end)
+    devMobile.MouseButton1Click:Connect(function() setDevice("Mobile") end)
 
     local AutoPanel = mk("Frame", G, {Size = UDim2.new(0, 240, 0, 140), Position = UDim2.new(0.5, -120, 0.2, 0), BackgroundColor3 = Color3.fromRGB(13, 18, 28), BackgroundTransparency = 0.08, Active = true, Draggable = true, Visible = false})
     mk("UICorner", AutoPanel, {CornerRadius = UDim.new(0, 12)})
@@ -153,6 +237,11 @@ pcall(function()
     mk("UICorner", SecBtn, {CornerRadius = UDim.new(0, 6)})
     mkLbl(SecBtn, UDim2.new(1, -10, 1, 0), UDim2.new(0.08, 0, 0, 0), "شرح الامان", 10, Color3.fromRGB(255, 220, 50), Enum.TextXAlignment.Left, Enum.Font.GothamBold)
     SecBtn.MouseButton1Click:Connect(function() SecurityPanel.Visible = not SecurityPanel.Visible end)
+
+    local DevMenuBtn = mk("TextButton", Scroll, {Size = UDim2.new(0.92, 0, 0, 30), Position = UDim2.new(0.04, 0, 0, 370), BackgroundColor3 = Color3.fromRGB(25, 35, 50), BackgroundTransparency = 0.1, Text = ""})
+    mk("UICorner", DevMenuBtn, {CornerRadius = UDim.new(0, 6)})
+    mkLbl(DevMenuBtn, UDim2.new(1, -10, 1, 0), UDim2.new(0.08, 0, 0, 0), "PhantomX Device Spoofer", 10, Color3.fromRGB(0, 210, 255), Enum.TextXAlignment.Left, Enum.Font.GothamBold)
+    DevMenuBtn.MouseButton1Click:Connect(function() DevicePanel.Visible = not DevicePanel.Visible end)
 
     local function isValidEnemy(eHrp, eP)
         if eP == LP or (LP.Team and eP.Team and LP.Team == eP.Team) or eHrp.Position.X < 20 then return false end
